@@ -1,0 +1,10 @@
+**
+!app/
+!bin/
+!config/
+!composer.*
+!public/
+!runtime/
+!.env.example
+!README.md
+!LICENSE
