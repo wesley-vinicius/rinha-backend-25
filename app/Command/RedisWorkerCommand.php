@@ -21,12 +21,6 @@ class RedisWorkerCommand extends HyperfCommand
         parent::__construct('payment:queue');
     }
 
-
-    public function configure(): void
-    {
-        $this->setDescription('Executa workers Redis em corrotinas');
-    }
-
     public function handle(): void
     {
         $this->startCb();

@@ -31,7 +31,6 @@ return [
         $factory = $container->get(ClientFactory::class);
 
         return new GatewayOrchestrator(
-            redis: $container->get(RedisFactory::class)->get('default'),
             providerList: [
                 'default' =>  new PaymentHttpGateway("default", $factory->create($configGatewayDefault)),
                 'fallback' => new PaymentHttpGateway("fallback", $factory->create($configGatewayFallback)),
