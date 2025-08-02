@@ -31,9 +31,6 @@ class PaymentService
                 'gateway' => $gateway->name,
             ]));
         } catch (\Throwable $exception) {
-            $this->orchestrator->failed($gateway->name);
-
-//            var_dump("Erro ao processar pagamento $correlationId na tentativa $attempt, com o seguinte error {$exception->getMessage()}");
             $this->redis->rPush(
                 'queue:payment',
                 json_encode([
@@ -45,7 +42,6 @@ class PaymentService
             );
             return;
         }
-
     }
 
     public function summary(\DateTimeImmutable $from, \DateTimeImmutable $to): array

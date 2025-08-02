@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Profiler\Profiler;
 use App\Service\PaymentService;
 use Hyperf\HttpMessage\Exception\BadRequestHttpException;
 use Hyperf\Redis\Redis;
@@ -23,14 +24,18 @@ readonly class PaymentController
             throw new BadRequestHttpException('Amount must be greater than 0');
         }
 
-        $this->redis->rPush(
-            'queue:payment',
-            json_encode([
-                'amount' => $amount,
-                'correlation_id' => $correlationId,
-                'requested_at' => (new \DateTimeImmutable())->format('Y-m-d\TH:i:s.v\Z'),
-            ])
-        );
+        $data = [
+            'amount' => $amount,
+            'correlation_id' => $correlationId,
+            'requested_at' => (new \DateTimeImmutable())->format('Y-m-d\TH:i:s.v\Z'),
+        ];
+
+        Profiler::profileRequest(uniqid('payment_', true), function () use ($data) {
+            $this->redis->rPush(
+                'queue:payment',
+                json_encode($data)
+            );
+        }, $data);
     }
 
     /**
@@ -38,9 +43,14 @@ readonly class PaymentController
      */
     public function summary(\Hyperf\HttpServer\Contract\RequestInterface $request): array
     {
-        return $this->paymentService->summary(
-            new \DateTimeImmutable($request->input('from', '')),
-            new \DateTimeImmutable($request->input('to', ''))
+        return Profiler::profileRequest(
+            uniqid('summary_', true),
+            function () use ($request) {
+                return $this->paymentService->summary(
+                    new \DateTimeImmutable($request->input('from', '')),
+                    new \DateTimeImmutable($request->input('to', ''))
+                );
+            }
         );
     }
 

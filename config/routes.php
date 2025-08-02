@@ -9,6 +9,8 @@ declare(strict_types=1);
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
+
+use App\Profiler\Profiler;
 use Hyperf\HttpServer\Router\Router;
 
 Router::addRoute(['GET', 'POST', 'HEAD'], '/', 'App\Controller\IndexController@index');
@@ -16,3 +18,7 @@ Router::addRoute(['GET', 'POST', 'HEAD'], '/', 'App\Controller\IndexController@i
 Router::post("/payments", 'App\Controller\PaymentController@create');
 Router::get("/payments-summary", 'App\Controller\PaymentController@summary');
 Router::post("/purge-payments", 'App\Controller\PaymentController@purge');
+
+Router::get("/report", function () {
+    return Profiler::report(10);
+});
