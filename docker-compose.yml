@@ -36,7 +36,7 @@ services:
       resources:
         limits:
           cpus: "0.3"
-          memory: "90MB"
+          memory: "110MB"
 
   app2:
     <<: *api
@@ -55,6 +55,11 @@ services:
     environment:
       - APP_ENV=prod
       - CB_ENABLE=true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: "50MB"
 
   redis:
     image: redis:alpine
