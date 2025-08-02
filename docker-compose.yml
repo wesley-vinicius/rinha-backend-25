@@ -1,43 +1,6 @@
-version: '3.8'
-
 services:
-  app1: &api
-    image: hyperf-skeleton:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
-    env_file:
-      - .env
-    environment:
-      - APP_ENV=dev
-      - SCAN_CACHEABLE=false
-    ports:
-      - "9501:9501"
-    networks:
-      - backend
-      - payment-processor
-    volumes:
-      - ./:/opt/www
-    deploy:
-      resources:
-        limits:
-          cpus: "0.6"
-          memory: "120MB"
-
-  app2:
-    <<: *api
-    ports:
-      - "9502:9501"
-    environment:
-      - APP_ENV=dev
-      - SCAN_CACHEABLE=false
-
-# Redis removido - não será usado
-
   nginx:
-    image: nginx:alpine
-    env_file:
-      - .env
+    image: nginx:1.29.0-alpine
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -50,13 +13,63 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.1"
-          memory: "20MB"
+          cpus: "0.3"
+          memory: "50MB"
+
+  app1: &api
+    image: hyperf-skeleton:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - APP_ENV=prod
+      - CB_ENABLE=false
+    ports:
+      - "9501:9501"
+    networks:
+      - backend
+      - payment-processor
+    command: php /opt/www/bin/hyperf.php start
+    volumes:
+      - ./:/opt/www
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: "90MB"
+
+  app2:
+    <<: *api
+    ports:
+      - "9502:9501"
+    command: php /opt/www/bin/hyperf.php start
+    environment:
+      - APP_ENV=prod
+      - CB_ENABLE=false
+
+  worker:
+    <<: *api
+    command: php /opt/www/bin/hyperf.php payment:queue
+    ports:
+      - "9503:9501"
+    environment:
+      - APP_ENV=prod
+      - CB_ENABLE=true
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: "40MB"
 
 networks:
   backend:
     driver: bridge
   payment-processor:
     external: true
-
-# Redis removido - não será usado

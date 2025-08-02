@@ -12,3 +12,7 @@ declare(strict_types=1);
 use Hyperf\HttpServer\Router\Router;
 
 Router::addRoute(['GET', 'POST', 'HEAD'], '/', 'App\Controller\IndexController@index');
+
+Router::post("/payments", 'App\Controller\PaymentController@create');
+Router::get("/payments-summary", 'App\Controller\PaymentController@summary');
+Router::post("/purge-payments", 'App\Controller\PaymentController@purge');

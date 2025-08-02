@@ -19,6 +19,8 @@ RUN apk add --no-cache \
     g++ \
     make \
     brotli-dev \
+    libtool \
+    re2c \
     && rm -rf /var/cache/apk/*
 
 RUN docker-php-ext-install \
@@ -29,8 +31,10 @@ RUN docker-php-ext-install \
         opcache \
         pcntl
 
-RUN pecl install swoole \
-    && docker-php-ext-enable swoole
+RUN pecl install redis \
+    && echo "extension=redis.so" > /usr/local/etc/php/conf.d/redis.ini \
+    && pecl install swoole \
+    && echo "extension=swoole.so" > /usr/local/etc/php/conf.d/swoole.ini
 
 RUN ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
     && echo "${TIMEZONE}" > /etc/timezone
