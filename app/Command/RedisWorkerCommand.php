@@ -24,7 +24,7 @@ class RedisWorkerCommand extends HyperfCommand
     public function handle(): void
     {
         $this->startCb();
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 30; $i++) {
             go(function () use ($i) {
                 $this->info("Worker $i iniciado");
                 while (true) {
